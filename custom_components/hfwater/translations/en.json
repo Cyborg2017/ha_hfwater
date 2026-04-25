@@ -1,0 +1,55 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Hefei Water",
+        "description": "Set up Hefei Water integration to get water bills and usage data. Please capture the Token from WeChat Mini Program.",
+        "data": {
+          "token": "Token (from WeChat Mini Program)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to server",
+      "invalid_auth": "Token is invalid or expired, please re-obtain",
+      "unknown": "Unknown error"
+    },
+    "abort": {
+      "already_configured": "This account is already configured"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "account_balance": {
+        "name": "Account Balance"
+      },
+      "next_poll_time": {
+        "name": "Next Poll Time"
+      },
+      "user_need_pay": {
+        "name": "Water Fee Due"
+      },
+      "user_late_fee": {
+        "name": "Late Fee"
+      },
+      "latest_bill_amount": {
+        "name": "Latest Bill Amount"
+      },
+      "latest_bill_date": {
+        "name": "Latest Bill Date"
+      },
+      "latest_bill_water_usage": {
+        "name": "Latest Water Usage"
+      },
+      "latest_bill_meter_reading": {
+        "name": "Latest Meter Reading"
+      },
+      "recent_bills_total": {
+        "name": "Recent 6 Bills Total"
+      },
+      "latest_pay_amount": {
+        "name": "Latest Payment Amount"
+      }
+    }
+  }
+}

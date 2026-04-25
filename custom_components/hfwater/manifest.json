@@ -1,0 +1,12 @@
+{
+  "domain": "hfwater",
+  "name": "合肥水务",
+  "codeowners": ["@Cyborg2017"],
+  "config_flow": true,
+  "dependencies": ["frontend", "http"],
+  "documentation": "https://github.com/Cyborg2017/ha_hfwater",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/Cyborg2017/ha_hfwater/issues",
+  "requirements": ["cryptography>=41.0.0"],
+  "version": "26.4.0"
+}

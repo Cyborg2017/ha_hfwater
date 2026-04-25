@@ -1,0 +1,55 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "合肥水务",
+        "description": "设置合肥水务集成以获取水费账单和用水数据。请从微信小程序「合肥水务」中抓包获取 Token。",
+        "data": {
+          "token": "Token（从微信小程序抓包获取）"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "无法连接到服务器",
+      "invalid_auth": "Token 无效或已过期，请重新获取",
+      "unknown": "未知错误"
+    },
+    "abort": {
+      "already_configured": "此账户已配置"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "account_balance": {
+        "name": "账户余额"
+      },
+      "next_poll_time": {
+        "name": "下次轮询时间"
+      },
+      "user_need_pay": {
+        "name": "应缴水费"
+      },
+      "user_late_fee": {
+        "name": "违约金"
+      },
+      "latest_bill_amount": {
+        "name": "最近出账金额"
+      },
+      "latest_bill_date": {
+        "name": "最近出账日期"
+      },
+      "latest_bill_water_usage": {
+        "name": "最近出账用水量"
+      },
+      "latest_bill_meter_reading": {
+        "name": "最近出账表读数"
+      },
+      "recent_bills_total": {
+        "name": "最近6期账单"
+      },
+      "latest_pay_amount": {
+        "name": "最近缴费金额"
+      }
+    }
+  }
+}
