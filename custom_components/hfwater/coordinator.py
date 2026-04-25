@@ -1,4 +1,4 @@
-"""DataUpdateCoordinator for 合肥水务 (Hefei Water)."""
+"""DataUpdateCoordinator for 合肥供水 (Hefei Water)."""
 from __future__ import annotations
 
 import logging
@@ -9,13 +9,13 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import HfWaterAPI, HfWaterAPIError, HfWaterAuthError, HfWaterRateLimitError
-from .const import DEFAULT_SCAN_INTERVAL, DOMAIN
+from .const import DEFAULT_SCAN_INTERVAL, DOMAIN, REGION_FEIXI
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class HfWaterCoordinator(DataUpdateCoordinator[dict[str, Any]]):
-    """Coordinator for 合肥水务 data."""
+    """Coordinator for 合肥供水 data."""
 
     def __init__(self, hass: HomeAssistant, api: HfWaterAPI) -> None:
         super().__init__(
@@ -38,6 +38,7 @@ class HfWaterCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 "bills": {},
                 "pay_info": {},
                 "pay_log": {},
+                "no_pay_info": {},
                 "_last_update_ts": datetime.now().isoformat(),
             }
 
@@ -67,6 +68,14 @@ class HfWaterCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     _LOGGER.warning("Rate limited when fetching pay log: %s", err)
                 except HfWaterAPIError as err:
                     _LOGGER.error("Error fetching pay log for %s: %s", customer_id, err)
+
+                # 肥西特有：欠费查询
+                if self.api.region == REGION_FEIXI:
+                    try:
+                        no_pay_data = await self.api.get_no_pay_info(customer_id)
+                        result["no_pay_info"][customer_id] = no_pay_data
+                    except HfWaterAPIError as err:
+                        _LOGGER.warning("Error fetching no_pay_info for %s: %s", customer_id, err)
 
             return result
 

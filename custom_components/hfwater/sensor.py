@@ -1,4 +1,4 @@
-"""Sensor platform for 合肥水务 (Hefei Water)."""
+"""Sensor platform for 合肥供水 (Hefei Water)."""
 from __future__ import annotations
 
 import json
@@ -37,7 +37,7 @@ except Exception:
 
 @dataclass(frozen=True, kw_only=True)
 class HfWaterSensorEntityDescription(SensorEntityDescription):
-    """合肥水务传感器描述."""
+    """合肥供水传感器描述."""
 
     value_fn: Callable[[dict, str], Any]
 
@@ -213,6 +213,7 @@ async def async_setup_entry(
     """Set up the sensor platform."""
     data = hass.data[DOMAIN][entry.entry_id]
     coordinator = data["coordinator"]
+    api = data["api"]
 
     entities: list[HfWaterSensor] = []
 
@@ -220,6 +221,8 @@ async def async_setup_entry(
         _LOGGER.warning("Coordinator data not available yet, skipping sensor setup")
         async_add_entities(entities)
         return
+
+    manufacturer = api.region_name
 
     accounts = coordinator.data.get("accounts", [])
     for account in accounts:
@@ -234,6 +237,7 @@ async def async_setup_entry(
                     customer_id=customer_id,
                     customer_name=customer_name,
                     customer_address=customer_address,
+                    manufacturer=manufacturer,
                     description=desc,
                 )
             )
@@ -242,7 +246,7 @@ async def async_setup_entry(
 
 
 class HfWaterSensor(CoordinatorEntity[HfWaterCoordinator], SensorEntity):
-    """合肥水务传感器实体."""
+    """合肥供水传感器实体."""
 
     _attr_has_entity_name = True
 
@@ -254,6 +258,7 @@ class HfWaterSensor(CoordinatorEntity[HfWaterCoordinator], SensorEntity):
         customer_id: str,
         customer_name: str,
         customer_address: str,
+        manufacturer: str,
         description: HfWaterSensorEntityDescription,
     ) -> None:
         super().__init__(coordinator)
@@ -264,8 +269,8 @@ class HfWaterSensor(CoordinatorEntity[HfWaterCoordinator], SensorEntity):
         self._attr_unique_id = f"{DOMAIN}_{customer_id}_{description.key}"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, customer_id)},
-            name=customer_address or f"合肥水务 {customer_name}",
-            manufacturer="合肥水务",
+            name=customer_address or f"{manufacturer} {customer_name}",
+            manufacturer=manufacturer,
             model=f"{customer_name} - {customer_id}",
             sw_version=_VERSION,
         )
@@ -307,9 +312,12 @@ class HfWaterSensor(CoordinatorEntity[HfWaterCoordinator], SensorEntity):
                     bills_detail.append({
                         "period": _format_order_date(bill.get("Year", "")),
                         "water_usage": bill.get("WaterNum", 0),
+                        "prev_meter_reading": bill.get("PrevMeterData", 0),
                         "meter_reading": bill.get("MeterData", 0),
                         "water_fee": bill.get("WaterFee", 0),
                         "service_fee": bill.get("ServiceFee", 0),
+                        "late_fees": bill.get("LateFees", 0),
+                        "fact_fee": bill.get("FactFee", 0),
                         "total_fee": bill.get("SumFee", 0),
                     })
                 attrs["最近6期账单"] = bills_detail

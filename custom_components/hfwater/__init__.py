@@ -1,4 +1,4 @@
-"""合肥水务 (Hefei Water) Home Assistant integration."""
+"""合肥供水 (Hefei Water) Home Assistant integration."""
 from __future__ import annotations
 
 import json
@@ -13,7 +13,7 @@ from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.helpers.event import async_call_later
 
 from .api import HfWaterAPI
-from .const import CONF_TOKEN, DOMAIN, PLATFORMS
+from .const import CONF_REGION, CONF_TOKEN, DOMAIN, PLATFORMS, REGION_HEFEI
 from .coordinator import HfWaterCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -107,9 +107,10 @@ async def _register_lovelace_resource(hass: HomeAssistant) -> None:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up 合肥水务 from a config entry."""
+    """Set up 合肥供水 from a config entry."""
     token = entry.data[CONF_TOKEN]
-    api = HfWaterAPI(token)
+    region = entry.data.get(CONF_REGION, REGION_HEFEI)
+    api = HfWaterAPI(token, region)
 
     coordinator = HfWaterCoordinator(hass, api)
     await coordinator.async_config_entry_first_refresh()

@@ -1,4 +1,4 @@
-console.info("%c 合肥水务卡片 \n%c        v1.0 ", "color: #1E88E5; font-weight: bold; background: black", "color: white; font-weight: bold; background: black");
+console.info("%c 合肥供水卡片 \n%c        v1.0 ", "color: #1E88E5; font-weight: bold; background: black", "color: white; font-weight: bold; background: black");
 import { LitElement, html, css } from "https://unpkg.com/lit-element@2.4.0/lit-element.js?module";
 
 
@@ -63,7 +63,7 @@ class HfWaterCardEditor extends LitElement {
           <input
             type="text"
             @change=${this._valueChanged}
-            .value=${this.config.title || "合肥水务"}
+            .value=${this.config.title || "合肥供水"}
             name="title"
           />
         </label>
@@ -306,7 +306,7 @@ class HfWaterCard extends LitElement {
     return {
       type: "custom:hfwater-card",
       entity: "",
-      title: "合肥水务",
+      title: "合肥供水",
     };
   }
 
@@ -314,7 +314,7 @@ class HfWaterCard extends LitElement {
     if (!config.entity) {
       throw new Error("请指定实体");
     }
-    this.config = { title: "合肥水务", ...config };
+    this.config = { title: "合肥供水", ...config };
   }
 
   getCardSize() {
@@ -405,7 +405,7 @@ class HfWaterCard extends LitElement {
           <div>
             <div class="card-title">
               <img class="card-logo" src="/hfwater-local/logo.png" alt="logo">
-              ${this.config.title || "合肥水务"}
+              ${this.config.title || "合肥供水"}
             </div>
             ${customerName || customerAddress
               ? html`<div class="card-subtitle">${customerName}${customerName && customerAddress ? " · " : ""}${customerAddress}</div>`
@@ -543,9 +543,9 @@ customElements.define("hfwater-card", HfWaterCard);
 window.customCards = window.customCards || [];
 window.customCards.push({
   type: "hfwater-card",
-  name: "合肥水务卡片",
+  name: "合肥供水卡片",
   description: "显示用水账单和账户信息的卡片",
-  documentationURL: "https://github.com/Cyborg2017/ha_hfwater",
+  documentationURL: "https://github.com/Cyborg2017/ha_hfcrgas",
 });
 
 // 通知 HA 前端重新渲染

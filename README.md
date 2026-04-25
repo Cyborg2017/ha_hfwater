@@ -1,6 +1,6 @@
-# 合肥水务 - Home Assistant 集成
+# 合肥供水 - Home Assistant 集成
 
-通过微信小程序「合肥水务」的 API 获取水费账单和用水数据的 Home Assistant 自定义集成。
+通过微信小程序 API 获取水费账单和用水数据的 Home Assistant 自定义集成，支持**合肥市区**和**肥西**两个区域。
 
 ## 功能
 
@@ -8,9 +8,16 @@
 - 💧 最近出账水量、表读数
 - 📋 最近6期账单明细
 - 💳 缴费记录
+- 🏙️ 支持合肥市区 / 肥西两个区域
 - 🎨 自定义 Lovelace 卡片
 
 ## 截图
+
+### 集成添加界面
+
+<div align="center">
+  <img src="images/5.png" width="60%" alt="集成添加界面">
+</div>
 
 ### 集成展示
 
@@ -31,7 +38,7 @@
 ### HACS 安装（推荐）
 
 1. 在 HACS 中添加自定义仓库：`https://github.com/Cyborg2017/ha_hfwater`，类型选择 `Integration`
-2. 在 HACS 中搜索「合肥水务」并安装
+2. 在 HACS 中搜索「合肥供水」并安装
 3. 重启 Home Assistant
 
 ### 手动安装
@@ -43,12 +50,18 @@
 ## 配置
 
 1. 进入 **设置 → 设备与服务 → 添加集成**
-2. 搜索「合肥水务」
-3. 输入从微信小程序「合肥水务」抓包获取的 Token
+2. 搜索「合肥供水」
+3. 选择区域（合肥水务 / 肥西供水）
+4. 输入从对应微信小程序抓包获取的 Token
 
 ### 获取 Token
 
-1. 打开微信，搜索并进入「合肥水务」小程序
+| 区域 | 微信小程序 |
+|------|-----------|
+| 合肥市区 | 「合肥水务」 |
+| 肥西 | 「肥西供水」 |
+
+1. 打开微信，搜索并进入对应区域的小程序
 2. 使用抓包工具（如 Charles、Fiddler 等）捕获请求
 3. 找到请求头中的 `token` 字段，复制其值
 
@@ -59,7 +72,7 @@
 ```yaml
 type: custom:hfwater-card
 entity: sensor.hfwater_户号_account_balance
-title: 合肥水务
+title: 合肥供水
 ```
 
 ## 传感器

@@ -2,9 +2,10 @@
   "config": {
     "step": {
       "user": {
-        "title": "合肥水务",
-        "description": "设置合肥水务集成以获取水费账单和用水数据。请从微信小程序「合肥水务」中抓包获取 Token。",
+        "title": "合肥供水",
+        "description": "设置合肥供水集成以获取水费账单和用水数据。请从微信小程序中抓包获取 Token。",
         "data": {
+          "region": "区域",
           "token": "Token（从微信小程序抓包获取）"
         }
       }
@@ -49,6 +50,14 @@
       },
       "latest_pay_amount": {
         "name": "最近缴费金额"
+      }
+    }
+  },
+  "selector": {
+    "region": {
+      "options": {
+        "hefei": "合肥水务",
+        "feixi": "肥西供水"
       }
     }
   }

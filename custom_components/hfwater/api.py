@@ -1,4 +1,4 @@
-"""合肥水务 (Hefei Water) API client with RSA encryption."""
+"""合肥供水 (Hefei Water) API client with RSA encryption."""
 from __future__ import annotations
 
 import base64
@@ -13,10 +13,16 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import padding
 
 from .const import (
-    BASE_URL,
-    RSA_PUBLIC_KEY_PEM,
-    RSA1_PRIVATE_KEY_PEM,
-    REFERER,
+    FEIXI_BASE_URL,
+    FEIXI_REFERER,
+    FEIXI_RSA1_PRIVATE_KEY_PEM,
+    FEIXI_RSA_PUBLIC_KEY_PEM,
+    HEFEI_BASE_URL,
+    HEFEI_REFERER,
+    HEFEI_RSA1_PRIVATE_KEY_PEM,
+    HEFEI_RSA_PUBLIC_KEY_PEM,
+    REGION_FEIXI,
+    REGION_HEFEI,
     WX_USER_AGENT,
 )
 
@@ -36,22 +42,43 @@ class HfWaterRateLimitError(HfWaterAPIError):
 
 
 class HfWaterAPI:
-    """合肥水务 API client."""
+    """合肥水务 / 肥西供水 API client."""
 
-    def __init__(self, token: str) -> None:
+    def __init__(self, token: str, region: str = REGION_HEFEI) -> None:
         self.token = token
-        self._pub_key = serialization.load_pem_public_key(RSA_PUBLIC_KEY_PEM.encode())
-        self._priv_key = serialization.load_pem_private_key(
-            RSA1_PRIVATE_KEY_PEM.encode(), password=None
-        )
+        self.region = region
+
+        if region == REGION_FEIXI:
+            self._base_url = FEIXI_BASE_URL
+            self._referer = FEIXI_REFERER
+            self._pub_key = serialization.load_pem_public_key(
+                FEIXI_RSA_PUBLIC_KEY_PEM.encode()
+            )
+            self._priv_key = serialization.load_pem_private_key(
+                FEIXI_RSA1_PRIVATE_KEY_PEM.encode(), password=None
+            )
+        else:
+            self._base_url = HEFEI_BASE_URL
+            self._referer = HEFEI_REFERER
+            self._pub_key = serialization.load_pem_public_key(
+                HEFEI_RSA_PUBLIC_KEY_PEM.encode()
+            )
+            self._priv_key = serialization.load_pem_private_key(
+                HEFEI_RSA1_PRIVATE_KEY_PEM.encode(), password=None
+            )
         self._session: aiohttp.ClientSession | None = None
+
+    @property
+    def region_name(self) -> str:
+        """Return display name for the region."""
+        return "肥西供水" if self.region == REGION_FEIXI else "合肥水务"
 
     def _get_headers(self) -> dict[str, str]:
         return {
-            "Host": "wapi.hfwater.cn",
+            "Host": self._base_url.split("/")[2],
             "token": self.token,
             "User-Agent": WX_USER_AGENT,
-            "Referer": REFERER,
+            "Referer": self._referer,
             "Accept-Encoding": "gzip,compress,br,deflate",
         }
 
@@ -104,7 +131,7 @@ class HfWaterAPI:
             params.update(extra_params)
 
         session = await self._get_session()
-        url = f"{BASE_URL}?{urlencode(params)}"
+        url = f"{self._base_url}?{urlencode(params)}"
         _LOGGER.debug("GET %s", url[:100])
 
         async with session.get(url, headers=self._get_headers(), timeout=aiohttp.ClientTimeout(total=15)) as resp:
@@ -135,7 +162,7 @@ class HfWaterAPI:
         post_body = f"encode_data={quote(encode_data)}&data_source=2&ticket_time={quote(ticket_time)}"
 
         session = await self._get_session()
-        url = f"{BASE_URL}?c={controller}&a={action}"
+        url = f"{self._base_url}?c={controller}&a={action}"
         _LOGGER.debug("POST %s | encode_data plaintext: %s", url[:80], s)
 
         async with session.post(url, data=post_body, headers=post_headers, timeout=aiohttp.ClientTimeout(total=15)) as resp:
@@ -175,7 +202,10 @@ class HfWaterAPI:
         return accounts
 
     async def get_bill(self, customer_id: str) -> dict[str, Any]:
-        """Get bill data for a customer (POST request)."""
+        """Get bill data for a customer (POST request).
+
+        合肥 and 肥西 both use controller 'ys'.
+        """
         result = await self._api_post("ys", "desensitizeGetBill4", {"customerId": customer_id})
         data = result.get("data", {})
 
@@ -236,7 +266,7 @@ class HfWaterAPI:
         }
 
         session = await self._get_session()
-        url = f"{BASE_URL}?c=Pay&a=desensitizeGetPayLog2&{urlencode(params)}"
+        url = f"{self._base_url}?c=Pay&a=desensitizeGetPayLog2&{urlencode(params)}"
         _LOGGER.debug("GET pay_log %s", url[:100])
 
         async with session.get(url, headers=self._get_headers(), timeout=aiohttp.ClientTimeout(total=15)) as resp:
@@ -264,6 +294,18 @@ class HfWaterAPI:
             "list": pay_records,
             "total": data.get("total", 0),
             "page_count": data.get("pageCount", 0),
+        }
+
+    async def get_no_pay_info(self, customer_id: str) -> dict[str, Any]:
+        """Get no-pay info for a customer (肥西特有, POST request).
+
+        Returns whether customer has unpaid bills.
+        """
+        result = await self._api_post("ys", "getNoPayInfo", {"customerId": customer_id})
+        data = result.get("data", "")
+        return {
+            "has_unpaid": data != "NO" if isinstance(data, str) else False,
+            "raw": data,
         }
 
     async def test_connection(self) -> bool:

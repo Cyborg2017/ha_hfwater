@@ -2,9 +2,10 @@
   "config": {
     "step": {
       "user": {
-        "title": "Hefei Water",
-        "description": "Set up Hefei Water integration to get water bills and usage data. Please capture the Token from WeChat Mini Program.",
+        "title": "Hefei Water Supply",
+        "description": "Set up Hefei Water Supply integration to get water bills and usage data. Please obtain the Token from the WeChat Mini Program via packet capture.",
         "data": {
+          "region": "Region",
           "token": "Token (from WeChat Mini Program)"
         }
       }
@@ -39,16 +40,24 @@
         "name": "Latest Bill Date"
       },
       "latest_bill_water_usage": {
-        "name": "Latest Water Usage"
+        "name": "Latest Bill Water Usage"
       },
       "latest_bill_meter_reading": {
-        "name": "Latest Meter Reading"
+        "name": "Latest Bill Meter Reading"
       },
       "recent_bills_total": {
-        "name": "Recent 6 Bills Total"
+        "name": "Recent 6 Bills"
       },
       "latest_pay_amount": {
         "name": "Latest Payment Amount"
+      }
+    }
+  },
+  "selector": {
+    "region": {
+      "options": {
+        "hefei": "Hefei Water",
+        "feixi": "Feixi Water Supply"
       }
     }
   }
