@@ -109,7 +109,9 @@ class HfWaterCard extends LitElement {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 16px 20px 8px;
+        padding: 16px 20px 12px;
+        border-bottom: 2px solid transparent;
+        border-image: linear-gradient(90deg, #1E88E5, #42A5F5, #90CAF9, transparent) 1;
       }
       .card-title {
         font-size: 18px;
@@ -117,13 +119,14 @@ class HfWaterCard extends LitElement {
         color: var(--primary-text-color);
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
       }
       .card-title img.card-logo {
-        width: 28px;
-        height: 28px;
-        border-radius: 4px;
+        width: 30px;
+        height: 30px;
+        border-radius: 6px;
         object-fit: contain;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.12);
       }
       .card-subtitle {
         font-size: 12px;
@@ -133,27 +136,46 @@ class HfWaterCard extends LitElement {
 
       /* 汇总行 */
       .summary-row {
-        display: flex;
-        justify-content: space-around;
-        padding: 12px 16px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        padding: 12px 12px;
         gap: 8px;
       }
       .summary-item {
         text-align: center;
         flex: 1;
+        background: var(--secondary-background-color, rgba(0,0,0,0.03));
+        border-radius: 10px;
+        padding: 10px 4px 8px;
+        transition: transform 0.15s, box-shadow 0.15s;
+      }
+      .summary-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      }
+      .summary-icon {
+        margin-bottom: 4px;
+      }
+      .summary-icon ha-icon {
+        --mdi-icon-size: 20px;
+        color: var(--secondary-text-color, #999);
       }
       .summary-value {
-        font-size: 20px;
+        font-size: 18px;
         font-weight: bold;
         color: var(--primary-text-color);
+        line-height: 1.3;
       }
       .summary-value.blue { color: #1E88E5; }
       .summary-value.green { color: #43A047; }
       .summary-value.orange { color: #FF6D00; }
       .summary-label {
-        font-size: 11px;
+        font-size: 10px;
         color: var(--secondary-text-color, #999);
         margin-top: 2px;
+        letter-spacing: 0.3px;
+        line-height: 1.3;
+        word-break: keep-all;
       }
 
       /* 信息行 */
@@ -161,9 +183,13 @@ class HfWaterCard extends LitElement {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 8px 20px;
+        padding: 9px 20px;
         border-top: 1px solid var(--divider-color, #eee);
         font-size: 13px;
+        transition: background 0.15s;
+      }
+      .info-row:hover {
+        background: var(--secondary-background-color, rgba(0,0,0,0.02));
       }
       .info-label {
         color: var(--secondary-text-color, #999);
@@ -173,7 +199,7 @@ class HfWaterCard extends LitElement {
       }
       .info-label ha-icon {
         --mdi-icon-size: 16px;
-        color: #1E88E5;
+        color: #42A5F5;
       }
       .info-value {
         color: var(--primary-text-color);
@@ -407,29 +433,30 @@ class HfWaterCard extends LitElement {
               <img class="card-logo" src="/hfwater-local/logo.png" alt="logo">
               ${this.config.title || "合肥供水"}
             </div>
-            ${customerName || customerAddress
-              ? html`<div class="card-subtitle">${customerName}${customerName && customerAddress ? " · " : ""}${customerAddress}</div>`
-              : ""}
           </div>
         </div>
 
         <!-- 汇总数据 -->
         <div class="summary-row">
           <div class="summary-item">
+            <div class="summary-icon"><ha-icon icon="mdi:wallet"></ha-icon></div>
             <div class="summary-value green">${this._fmt(balance)}</div>
-            <div class="summary-label">账户余额</div>
+            <div class="summary-label">账户余额<br>(元)</div>
           </div>
           <div class="summary-item">
+            <div class="summary-icon"><ha-icon icon="mdi:currency-cny"></ha-icon></div>
             <div class="summary-value orange">${this._fmt(needPay)}</div>
-            <div class="summary-label">应缴水费</div>
+            <div class="summary-label">应缴水费<br>(元)</div>
           </div>
           <div class="summary-item">
+            <div class="summary-icon"><ha-icon icon="mdi:water"></ha-icon></div>
             <div class="summary-value blue">${this._fmt(billUsage, 1)}</div>
-            <div class="summary-label">出账水量</div>
+            <div class="summary-label">出账水量<br>(m³)</div>
           </div>
           <div class="summary-item">
+            <div class="summary-icon"><ha-icon icon="mdi:gauge"></ha-icon></div>
             <div class="summary-value" style="color:var(--primary-text-color)">${this._fmt(billMeterReading, 1)}</div>
-            <div class="summary-label">出账读数</div>
+            <div class="summary-label">水表读数<br>(m³)</div>
           </div>
         </div>
 
