@@ -47,9 +47,6 @@ WX_USER_AGENT = (
     "MicroMessenger/8.0.71(0x18004728) NetType/WIFI Language/zh_CN"
 )
 
-# Default update interval (daily)
-DEFAULT_SCAN_INTERVAL = 1440
-
 # Daily poll time
 DAILY_UPDATE_HOUR = 7
 DAILY_UPDATE_MINUTE = 30

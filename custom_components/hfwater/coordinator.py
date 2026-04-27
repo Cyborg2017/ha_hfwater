@@ -2,14 +2,15 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Any
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, CALLBACK_TYPE
+from homeassistant.helpers.event import async_track_time_change
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import HfWaterAPI, HfWaterAPIError, HfWaterAuthError, HfWaterRateLimitError
-from .const import DEFAULT_SCAN_INTERVAL, DOMAIN, REGION_FEIXI
+from .const import DOMAIN, REGION_FEIXI, DAILY_UPDATE_HOUR, DAILY_UPDATE_MINUTE
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -22,9 +23,35 @@ class HfWaterCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             hass,
             _LOGGER,
             name=DOMAIN,
-            update_interval=timedelta(minutes=DEFAULT_SCAN_INTERVAL),
+            update_interval=None,
         )
         self.api = api
+        self._cancel_daily: CALLBACK_TYPE | None = None
+
+    async def async_config_entry_first_refresh(self) -> None:
+        """首次刷新并注册每日定时更新."""
+        await super().async_config_entry_first_refresh()
+        self._cancel_daily = async_track_time_change(
+            self.hass,
+            self._async_daily_update,
+            hour=DAILY_UPDATE_HOUR,
+            minute=DAILY_UPDATE_MINUTE,
+            second=0,
+        )
+        _LOGGER.info(
+            "已注册每日定时更新: %02d:%02d", DAILY_UPDATE_HOUR, DAILY_UPDATE_MINUTE
+        )
+
+    async def _async_daily_update(self, now: datetime) -> None:
+        """每日定时触发数据更新."""
+        _LOGGER.info("定时更新触发: %s", now.isoformat())
+        await self.async_request_refresh()
+
+    def async_stop(self) -> None:
+        """取消定时任务."""
+        if self._cancel_daily:
+            self._cancel_daily()
+            self._cancel_daily = None
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch data from API."""
