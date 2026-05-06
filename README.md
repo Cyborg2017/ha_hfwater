@@ -10,6 +10,7 @@
 - 💳 缴费记录
 - 🏙️ 支持合肥市区 / 肥西两个区域
 - 🎨 自定义 Lovelace 卡片
+- 📈 **阶梯用水信息**（第一/二/三阶梯剩余水量、累计用水量）
 
 ## 截图
 
@@ -31,6 +32,12 @@
 <div align="center">
   <img src="images/3.png" width="45%" alt="卡片展示1">
   <img src="images/4.png" width="45%" alt="卡片展示2">
+</div>
+
+### 阶梯用水展示
+
+<div align="center">
+  <img src="images/6.png" width="45%" alt="阶梯用水展示">
 </div>
 
 ## 安装
@@ -71,7 +78,7 @@
 
 ```yaml
 type: custom:hfwater-card
-entity: sensor.hfwater_户号_account_balance
+entity: sensor.hfwater_户号_recent_bills_total
 title: 合肥供水
 ```
 
@@ -89,6 +96,21 @@ title: 合肥供水
 | `latest_pay_amount` | 最近缴费金额 | CNY |
 | `recent_bills_total` | 最近6期账单总额 | CNY |
 | `next_poll_time` | 下次轮询时间 | - |
+| `surplus_water_1` | 第一阶梯剩余水量 | m³ |
+| `surplus_water_2` | 第二阶梯剩余水量 | m³ |
+| `cumulative_water` | 本年度累计用水量 | m³ |
+
+## 阶梯用水说明
+
+合肥市居民生活用水实行阶梯水价制度（按户年用水量）：
+
+| 阶梯 | 年用水量范围 | 到户水价 |
+|------|------------|---------|
+| 🟢 第一档 | 0-152 m³（含） | **3.15 元/m³** |
+| 🟡 第二档 | 152-240 m³（含） | **4.04 元/m³** |
+| 🔴 第三档 | 240 m³ 以上 | **6.71 元/m³** |
+
+卡片中点击「阶梯用水」按钮可查看详细的阶梯使用情况，包括各阶梯剩余水量、已用量、单价和预估水费。
 
 ## 注意事项
 
