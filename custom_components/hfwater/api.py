@@ -265,6 +265,33 @@ class HfWaterAPI:
             "money_arr": money_arr,
         }
 
+    async def get_meter_info(self, customer_id: str) -> dict[str, Any]:
+        """Get meter info for a customer (POST request).
+
+        Returns tiered water usage information including:
+        - SurplusWater1: First tier remaining water volume (m³)
+        - SurplusWater2: Second tier remaining water volume (m³)
+        - CumulativeWater: Cumulative water usage (m³)
+        - IndustryType: User type (e.g., "居民户")
+        - PrevMeterData: Previous meter reading
+        - LastReadWater: Last reading water
+        - MeterData: Current meter reading
+        """
+        result = await self._api_post("ys", "desensitizeGetMeterInfo", {"customerId": customer_id})
+        data = result.get("data", {})
+
+        select_info = data.get("SELECT", {})
+
+        return {
+            "surplus_water_1": int(select_info.get("SurplusWater1", 0)),
+            "surplus_water_2": int(select_info.get("SurplusWater2", 0)),
+            "cumulative_water": int(select_info.get("CumulativeWater", 0)),
+            "industry_type": select_info.get("IndustryType", ""),
+            "prev_meter_data": int(select_info.get("PrevMeterData", 0)),
+            "last_read_water": int(select_info.get("LastReadWater", 0)),
+            "meter_data": int(select_info.get("MeterData", 0)),
+        }
+
     async def get_pay_log(self, customer_id: str, page_index: int = 1, page_size: int = 12) -> dict[str, Any]:
         """Get payment log for a customer (GET request).
 

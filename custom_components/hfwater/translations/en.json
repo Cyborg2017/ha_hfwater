@@ -50,6 +50,15 @@
       },
       "latest_pay_amount": {
         "name": "Latest Payment Amount"
+      },
+      "surplus_water_1": {
+        "name": "Tier 1 Surplus Water"
+      },
+      "surplus_water_2": {
+        "name": "Tier 2 Surplus Water"
+      },
+      "cumulative_water": {
+        "name": "Cumulative Water"
       }
     }
   },

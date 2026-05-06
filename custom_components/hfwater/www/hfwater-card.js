@@ -89,6 +89,7 @@ class HfWaterCard extends LitElement {
       config: { type: Object },
       _showBills: { type: Boolean },
       _showPayRecords: { type: Boolean },
+      _showTierWater: { type: Boolean },
     };
   }
 
@@ -315,6 +316,84 @@ class HfWaterCard extends LitElement {
       .toggle-btn ha-icon {
         --mdi-icon-size: 16px;
       }
+
+      /* 阶梯用水区域 */
+      .tier-section {
+        padding: 4px 16px 16px;
+      }
+      .tier-title {
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--primary-text-color);
+        padding: 8px 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .tier-title ha-icon {
+        --mdi-icon-size: 16px;
+        color: #1E88E5;
+      }
+      .tier-item {
+        background: var(--secondary-background-color, rgba(0,0,0,0.03));
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+      }
+      .tier-item:last-child {
+        margin-bottom: 0;
+      }
+      .tier-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .tier-name {
+        font-size: 14px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .tier-name.green { color: #43A047; }
+      .tier-name.yellow { color: #FFA726; }
+      .tier-name.red { color: #EF5350; }
+      .tier-volume {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--primary-text-color);
+      }
+      .tier-bar {
+        height: 8px;
+        background: #E0E0E0;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 6px;
+      }
+      .tier-bar-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.3s ease;
+      }
+      .tier-bar-fill.green { background: linear-gradient(90deg, #66BB6A, #43A047); }
+      .tier-bar-fill.yellow { background: linear-gradient(90deg, #FFB74D, #FFA726); }
+      .tier-bar-fill.red { background: linear-gradient(90deg, #EF5350, #E53935); }
+      .tier-info {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: var(--secondary-text-color, #999);
+      }
+      .tier-tip {
+        background: linear-gradient(135deg, #E3F2FD, #BBDEFB);
+        border-left: 3px solid #1E88E5;
+        border-radius: 6px;
+        padding: 10px 12px;
+        margin-top: 12px;
+        font-size: 12px;
+        color: #1565C0;
+      }
     `;
   }
 
@@ -322,6 +401,7 @@ class HfWaterCard extends LitElement {
     super();
     this._showBills = false;
     this._showPayRecords = false;
+    this._showTierWater = false;
   }
 
   static getConfigElement() {
@@ -425,6 +505,10 @@ class HfWaterCard extends LitElement {
     const payAttrs = this._getEntityAttrs("latest_pay_amount");
     const payRecords = payAttrs["最近缴费记录"] || [];
 
+    const surplusWater1 = this._getEntityValue("surplus_water_1");
+    const surplusWater2 = this._getEntityValue("surplus_water_2");
+    const cumulativeWater = this._getEntityValue("cumulative_water");
+
     return html`
       <ha-card class="card">
         <div class="card-header">
@@ -491,8 +575,14 @@ class HfWaterCard extends LitElement {
         </div>
 
         <!-- 按钮行 -->
-        ${(billlist.length > 0 || payRecords.length > 0) ? html`
+        ${(billlist.length > 0 || payRecords.length > 0 || (surplusWater1 !== null && surplusWater2 !== null)) ? html`
         <div class="toggle-wrap">
+          ${surplusWater1 !== null && surplusWater2 !== null ? html`
+          <div class="toggle-btn ${this._showTierWater ? "active" : ""}" @click=${() => { this._showTierWater = !this._showTierWater; }}>
+            <ha-icon icon=${this._showTierWater ? "mdi:chevron-up" : "mdi:chevron-down"}></ha-icon>
+            ${this._showTierWater ? "收起阶梯" : "阶梯用水"}
+          </div>
+          ` : ""}
           ${billlist.length > 0 ? html`
           <div class="toggle-btn ${this._showBills ? "active" : ""}" @click=${() => { this._showBills = !this._showBills; }}>
             <ha-icon icon=${this._showBills ? "mdi:chevron-up" : "mdi:chevron-down"}></ha-icon>
@@ -559,6 +649,68 @@ class HfWaterCard extends LitElement {
               `)}
             </tbody>
           </table>
+        </div>
+        ` : ""}
+
+        <!-- 阶梯用水信息 -->
+        ${this._showTierWater && surplusWater1 !== null && surplusWater2 !== null ? html`
+        <div class="tier-section">
+          <div class="tier-title">
+            <ha-icon icon="mdi:water"></ha-icon>
+            阶梯用水详情
+          </div>
+
+          <!-- 第一阶梯 -->
+          <div class="tier-item">
+            <div class="tier-header">
+              <span class="tier-name green">🟢 第一阶梯</span>
+              <span class="tier-volume">${this._fmt(cumulativeWater, 0)} / 152 m³</span>
+            </div>
+            <div class="tier-bar">
+              <div class="tier-bar-fill green" style="width: ${Math.min((cumulativeWater / 152) * 100, 100)}%"></div>
+            </div>
+            <div class="tier-info">
+              <span>剩余: ${this._fmt(surplusWater1, 0)} m³</span>
+              <span>单价: 3.15 元/m³</span>
+              <span>阶梯水费: ${this._fmt(Math.min(cumulativeWater, 152) * 3.15)} 元</span>
+            </div>
+          </div>
+
+          <!-- 第二阶梯 -->
+          <div class="tier-item">
+            <div class="tier-header">
+              <span class="tier-name yellow">🟡 第二阶梯</span>
+              <span class="tier-volume">${cumulativeWater > 152 ? this._fmt(cumulativeWater - 152, 0) : '未使用'} / 88 m³</span>
+            </div>
+            <div class="tier-bar">
+              <div class="tier-bar-fill yellow" style="width: ${cumulativeWater > 152 ? Math.min(((cumulativeWater - 152) / 88) * 100, 100) : '0'}%"></div>
+            </div>
+            <div class="tier-info">
+              <span>剩余: ${this._fmt(surplusWater2, 0)} m³</span>
+              <span>单价: 4.04 元/m³</span>
+              <span>阶梯水费: ${cumulativeWater > 152 ? this._fmt(Math.min(cumulativeWater - 152, 88) * 4.04) : '0.00'} 元</span>
+            </div>
+          </div>
+
+          <!-- 第三阶梯 -->
+          <div class="tier-item">
+            <div class="tier-header">
+              <span class="tier-name red">🔴 第三阶梯</span>
+              <span class="tier-volume">${cumulativeWater > 240 ? this._fmt(cumulativeWater - 240, 0) + ' m³' : '未使用'}</span>
+            </div>
+            <div class="tier-bar">
+              <div class="tier-bar-fill red" style="width: ${cumulativeWater > 240 ? Math.min(((cumulativeWater - 240) / 100) * 100, 100) : '0'}%"></div>
+            </div>
+            <div class="tier-info">
+              <span>240m³以上</span>
+              <span>单价: 6.71 元/m³</span>
+              <span>阶梯水费: ${cumulativeWater > 240 ? this._fmt((cumulativeWater - 240) * 6.71) : '0.00'} 元</span>
+            </div>
+          </div>
+
+          <div class="tier-tip">
+            💡 您目前处于${cumulativeWater <= 152 ? '第一' : cumulativeWater <= 240 ? '第二' : '第三'}阶梯，水价${cumulativeWater <= 152 ? '最优惠' : cumulativeWater <= 240 ? '中等' : '较高'}，请注意节约用水~
+          </div>
         </div>
         ` : ""}
       </ha-card>

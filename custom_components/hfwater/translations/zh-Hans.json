@@ -50,6 +50,15 @@
       },
       "latest_pay_amount": {
         "name": "最近缴费金额"
+      },
+      "surplus_water_1": {
+        "name": "第一阶梯剩余水量"
+      },
+      "surplus_water_2": {
+        "name": "第二阶梯剩余水量"
+      },
+      "cumulative_water": {
+        "name": "本年度累计用水量"
       }
     }
   },

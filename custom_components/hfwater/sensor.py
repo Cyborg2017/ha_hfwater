@@ -138,6 +138,33 @@ SENSOR_DESCRIPTIONS: list[HfWaterSensorEntityDescription] = [
             _first_pay(data, cid).get("money") if _first_pay(data, cid) else None
         ),
     ),
+    HfWaterSensorEntityDescription(
+        key="surplus_water_1",
+        translation_key="surplus_water_1",
+        device_class=SensorDeviceClass.WATER,
+        state_class=SensorStateClass.TOTAL,
+        native_unit_of_measurement=UnitOfVolume.CUBIC_METERS,
+        icon="mdi:numeric-1-box-multiple",
+        value_fn=lambda data, cid: data.get("meter_info", {}).get(cid, {}).get("surplus_water_1"),
+    ),
+    HfWaterSensorEntityDescription(
+        key="surplus_water_2",
+        translation_key="surplus_water_2",
+        device_class=SensorDeviceClass.WATER,
+        state_class=SensorStateClass.TOTAL,
+        native_unit_of_measurement=UnitOfVolume.CUBIC_METERS,
+        icon="mdi:numeric-2-box-multiple",
+        value_fn=lambda data, cid: data.get("meter_info", {}).get(cid, {}).get("surplus_water_2"),
+    ),
+    HfWaterSensorEntityDescription(
+        key="cumulative_water",
+        translation_key="cumulative_water",
+        device_class=SensorDeviceClass.WATER,
+        state_class=SensorStateClass.TOTAL,
+        native_unit_of_measurement=UnitOfVolume.CUBIC_METERS,
+        icon="mdi:chart-timeline-variant",
+        value_fn=lambda data, cid: data.get("meter_info", {}).get(cid, {}).get("cumulative_water"),
+    ),
 ]
 
 

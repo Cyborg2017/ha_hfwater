@@ -66,6 +66,7 @@ class HfWaterCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 "pay_info": {},
                 "pay_log": {},
                 "no_pay_info": {},
+                "meter_info": {},
                 "_last_update_ts": datetime.now().isoformat(),
             }
 
@@ -103,6 +104,15 @@ class HfWaterCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         result["no_pay_info"][customer_id] = no_pay_data
                     except HfWaterAPIError as err:
                         _LOGGER.warning("Error fetching no_pay_info for %s: %s", customer_id, err)
+
+                # 阶梯用水信息查询
+                try:
+                    meter_data = await self.api.get_meter_info(customer_id)
+                    result["meter_info"][customer_id] = meter_data
+                except HfWaterRateLimitError as err:
+                    _LOGGER.warning("Rate limited when fetching meter info: %s", err)
+                except HfWaterAPIError as err:
+                    _LOGGER.error("Error fetching meter info for %s: %s", customer_id, err)
 
             return result
 
