@@ -238,12 +238,28 @@ class HfWaterAPI:
         pay_info = data.get("payInfo", {})
         money_arr = data.get("moneyArr", {})
 
+        # 获取原始数据
+        original_balance = float(pay_info.get("balance", 0))
+        original_user_need_pay = float(pay_info.get("userNeedPay", 0))
+
+        # 计算显示的余额
+        if original_user_need_pay > 0:
+            display_balance = 0
+        else:
+            display_balance = original_balance
+
+        # 计算显示的待缴金额
+        if original_user_need_pay > 0:
+            display_user_need_pay = original_user_need_pay - original_balance
+        else:
+            display_user_need_pay = 0
+
         return {
             "customer_id": self._rsa1_decrypt_long(data.get("customerId", "")),
             "customer_name": self._rsa1_decrypt_long(data.get("customerName", "")),
             "customer_address": self._rsa1_decrypt_long(data.get("customerAddress", "")),
-            "balance": pay_info.get("balance", 0),
-            "user_need_pay": pay_info.get("userNeedPay", 0),
+            "balance": display_balance,
+            "user_need_pay": display_user_need_pay,
             "user_late_fee": pay_info.get("userLateFee", 0),
             "pay_amount": pay_info.get("payAmount", 0),
             "money_arr": money_arr,
